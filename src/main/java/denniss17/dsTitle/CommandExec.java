@@ -4,14 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
 
+import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import denniss17.dsTitle.Title;
 import denniss17.dsTitle.Title.Type;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 
 public class CommandExec implements CommandExecutor{
 
@@ -200,7 +203,7 @@ public class CommandExec implements CommandExecutor{
 		}
 		
 		SortedSet<Title> titles = plugin.getTitleManager().getPrefixes();
-		sendTitleList(sender, titles);
+		sendTitleList(sender, titles, true);
 		return true;
 	}
 	
@@ -211,7 +214,7 @@ public class CommandExec implements CommandExecutor{
 		}
 		
 		SortedSet<Title> titles = plugin.getTitleManager().getSuffixes();
-		sendTitleList(sender, titles);
+		sendTitleList(sender, titles, false);
 		return true;
 	}
 	
@@ -228,6 +231,7 @@ public class CommandExec implements CommandExecutor{
 		}
 		
 		// Get target
+		@SuppressWarnings("deprecation")
 		OfflinePlayer target = (args.length>3) ? plugin.getServer().getOfflinePlayer(args[3]) : player;
 		
 		// Check permission
@@ -266,6 +270,7 @@ public class CommandExec implements CommandExecutor{
 		return true;	
 	}
 	
+	@SuppressWarnings("deprecation")
 	private boolean cmdTitleSetSuffix(CommandSender sender, Command cmd, String commandlabel, String[] args){
 		if(args.length<3) return false;
 		
@@ -317,6 +322,7 @@ public class CommandExec implements CommandExecutor{
 		return true;
 	}
 	
+	@SuppressWarnings("deprecation")
 	private boolean cmdTitleClear(CommandSender sender, Command cmd, String commandlabel, String[] args){		
 		// Check if player
 		Player player;
@@ -366,6 +372,7 @@ public class CommandExec implements CommandExecutor{
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	private boolean cmdTitleGrant(CommandSender sender, Command cmd, String commandlabel, String[] args){
 		if(plugin.getPermissionManager().hasPermission(sender, "ds_title.grant")){
 			if(plugin.getPermissionManager().isVaultEnabled()){
@@ -397,6 +404,7 @@ public class CommandExec implements CommandExecutor{
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	private boolean cmdTitleUngrant(CommandSender sender, Command cmd, String commandlabel, String[] args){
 		if(plugin.getPermissionManager().hasPermission(sender, "ds_title.ungrant")){
 			if(plugin.getPermissionManager().isVaultEnabled()){
@@ -427,38 +435,69 @@ public class CommandExec implements CommandExecutor{
 		}
 	}
 
-	private void sendTitleList(CommandSender sender, SortedSet<Title> titles){
+	private void sendTitleList(CommandSender sender, SortedSet<Title> titles, boolean prefix){
 		List<String> available = new ArrayList<String>();
 		List<String> unavailable = new ArrayList<String>();
-		
+		List<String> availableTitles = new ArrayList<String>();
+		List<String> unavailableTitles = new ArrayList<String>();
+		String hoverTextMask = plugin.getConfig().getString("messages.title_available_hovertext");
 		String description, preview, listitem;
-		String listitemMask = plugin.getConfig().getString("messages.title_listitem");
+		
 		for(Title title: titles){
 			description = title.description==null ? "-" : title.description;
-			preview = title.chatTag==null ? "" : title.chatTag;
-			preview += title.chatTag!=null && title.headTag!=null ? "&r&8/&r" : "";
-			preview += title.headTag==null ? "" : title.headTag;
-			
-			listitem = listitemMask
-					.replace("{name}", title.name)
-					.replace("{preview}", preview + "&r")
-					.replace("{description}", description);
-					
-			if(title.permission==null || plugin.getPermissionManager().hasPermission(sender, title.permission)){
-				available.add(listitem);
+			if(title.chatTag!=null && title.chatTag!=""){
+				preview = title.chatTag;
 			}else{
+				preview = "";
+			}
+			if(title.headTag!=null && plugin.getConfig().getBoolean("general.use_nametag")){
+				if(title.chatTag!=null && title.chatTag!=""){
+					preview = preview + "&r&8/&r" +  title.headTag;
+				}else{
+					preview = preview + title.headTag;
+				}			  
+			}			
+			if(title.permission==null || plugin.getPermissionManager().hasPermission(sender, title.permission)){
+				String listitemMask = plugin.getConfig().getString("messages.title_listitem_available");
+				listitem = ChatColor.WHITE + ": " + ChatColor.RESET + listitemMask
+						.replace("{preview}", preview + "&r")
+						.replace("{description}", description);
+				available.add(listitem);
+				availableTitles.add(title.name);
+			}else{
+				String listitemMask = plugin.getConfig().getString("messages.title_listitem_unavailable");
+				listitem = ChatColor.WHITE + ": " + ChatColor.RESET + listitemMask
+						.replace("{preview}", preview + "&r")
+						.replace("{description}", description);
 				unavailable.add(listitem);
+				unavailableTitles.add(title.name);
 			}
 		}
 		plugin.sendMessage(sender, plugin.getConfig().getString("messages.available_header"));
-		for(String msg: available){
-			plugin.sendMessage(sender, msg);
-		}
+		if(available.size()!=0 && available!=null){
+			for(int i = 0; i < available.size(); i++){
+				if(sender instanceof Player){
+					TextComponent message = new TextComponent(TextComponent.fromLegacyText(ChatColor.BOLD + availableTitles.get(i) + ChatColor.RESET));
+					TextComponent extra = new TextComponent(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', available.get(i))));
+					String hoverText = hoverTextMask
+							.replace("{title}", availableTitles.get(i));
+					if(prefix)
+						message.setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, ("/title prefix set " + availableTitles.get(i)) ) );						
+					else
+						message.setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, ("/title suffix set " + availableTitles.get(i)) ) );
+					message.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',hoverText)) ) );				
+					message.addExtra(extra);
+					((Player) sender).spigot().sendMessage( message );
+				}		
+			}
+		}		
 		if(plugin.getConfig().getBoolean("general.show_unavailable_titles")){
 			plugin.sendMessage(sender, plugin.getConfig().getString("messages.unavailable_header"));
-			for(String msg: unavailable){
-				plugin.sendMessage(sender, msg);
-			}
+			if(unavailable.size()!=0 && unavailable!=null){
+				for(int i = 0; i < unavailable.size(); i++){
+					plugin.sendMessage(sender, ChatColor.BOLD + unavailableTitles.get(i) + ChatColor.RESET + unavailable.get(i));
+				}
+			}		
 		}
 	}
 }

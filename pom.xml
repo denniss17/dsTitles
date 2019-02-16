@@ -1,4 +1,4 @@
-<!-- Blacksmith build file -->
+<!-- dsTitle Buildfile -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -6,15 +6,13 @@
 
     <groupId>denniss17</groupId>
     <artifactId>dsTitle</artifactId>
-    <version>1.5.0</version>
+    <version>1.5.3</version>
     <name>DSTitle</name>
     <description>Players can set their own title. Titles can be associated with permissions, so you can change available titles per rank or player.</description>
 
     <!-- Properties -->
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <vault.version>1.5.0</vault.version>
-        <build.number>Unknown</build.number>
     </properties>
 
     <!-- Repositories -->
@@ -25,34 +23,62 @@
         </repository>
         <repository>
             <id>vault-repo</id>
-            <url>http://nexus.theyeticave.net/content/repositories/pub_releases/</url>
+            <url>http://nexus.hc.to/content/repositories/pub_releases</url>
         </repository>
         <repository>
 			<id>md_5-repo</id>
 			<url>http://repo.md-5.net/content/groups/public/</url>
-		  </repository>
+		</repository>
+		<repository>
+			<id>drkmatr1984</id>
+			<url>https://minevolt.net/repo/</url>
+		</repository>
+		<repository>
+            <id>placeholderapi</id>
+            <url>http://repo.extendedclip.com/content/repositories/placeholderapi/</url>
+        </repository>
+		<repository>
+            <id>mvdw-software</id>
+            <name>MVdW Public Repositories</name>
+            <url>http://repo.mvdw-software.be/content/groups/public/</url>
+        </repository>
     </repositories>
     <!-- Dependencies -->
     <dependencies>
         <dependency>
-            <groupId>org.bukkit</groupId>
-            <artifactId>bukkit</artifactId>
-            <version>1.8-R0.1-SNAPSHOT</version>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.13.2-R0.1-SNAPSHOT</version>
             <type>jar</type>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.8-R0.1-SNAPSHOT</version>
-            <type>jar</type>
-            <scope>provided</scope>
+            <version>1.13.2-R0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>net.milkbowl.vault</groupId>
             <artifactId>Vault</artifactId>
-            <version>${vault.version}</version>
+            <version>1.7.1</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>me.clip</groupId>
+            <artifactId>placeholderapi</artifactId>
+            <version>2.9.2</version>
+        </dependency>
+        <dependency>
+            <groupId>me.clip.deluxechat</groupId>
+            <artifactId>DeluxeChat</artifactId>
+            <version>1.10.0</version>
+            <type>jar</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>be.maximvdw</groupId>
+            <artifactId>MVdWPlaceholderAPI</artifactId>
+            <version>2.5.2-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

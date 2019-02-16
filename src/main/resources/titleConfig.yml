@@ -21,7 +21,17 @@
 #
 #
 #
-prefixes: {}
-suffixes: {}
-default_prefix: ''
-default_suffix: ''
+prefixes:
+  Noob:
+    chattag: &aNoob
+    headtag: &aNoob
+    permission: title.noob.prefix
+    description: '&6&oA &d&ospecial &6&oTitle for &d&oSpecial &6&oPeople'
+suffixes:
+  Noob:
+    chattag: &aNoob
+    headtag: &aNoob
+    permission: title.noob.suffix
+    description: '&6&oA &d&ospecial &6&oTitle for &d&oSpecial &6&oPeople'
+default_prefix: 'Noob'
+default_suffix: 'Noob'

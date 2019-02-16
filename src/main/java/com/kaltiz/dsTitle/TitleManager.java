@@ -2,7 +2,6 @@ package com.kaltiz.dsTitle;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.SortedSet;
@@ -52,9 +51,8 @@ public class TitleManager {
         titleConfig = YamlConfiguration.loadConfiguration(titleConfigFile);
         
         // Set correct keys in the file
-        InputStream defConfigStream = plugin.getResource(TITLE_CONFIG_FILENAME);
-        if (defConfigStream != null) {
-            YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
+        if (titleConfigFile.exists()) {
+            YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(titleConfigFile);
             titleConfig.setDefaults(defConfig);
         }
     	titleConfig.options().copyDefaults(true);
@@ -134,14 +132,35 @@ public class TitleManager {
      * @return Title or null if the player has no prefix
      */
     public Title getPlayerPrefix(OfflinePlayer target)
-    {
-        if(playerPrefixes.containsKey(target.getName())){
-            String title = playerPrefixes.get(target.getName());
-            return prefixes.get(title);
-        }
-        else{
-            return null;
-        }
+    {	
+    	if(target!=null){
+    		if(playerPrefixes.containsKey(target.getName())){
+                String title = playerPrefixes.get(target.getName());
+                return prefixes.get(title);
+            }          
+    	}
+        return null;
+    }
+    
+    /**
+     * Get the Prefix a player has set currently
+     * @param target the player
+     * @return Title or null if the player has no prefix
+     */
+    public String getPrefixChatTag(OfflinePlayer target){
+    	if(plugin.getConfig().getBoolean("general.use_chattag") || plugin.placeHolders){
+	    	String chatTag;
+	    	if(target!=null){
+	    		if(getPlayerPrefix(target).chatTag!=null){
+	    			chatTag = getPlayerPrefix(target).chatTag;
+			    	if(!chatTag.equals(null) && !chatTag.equals("")){
+			    		return chatTag;
+			    	}
+	    		}    		
+	    	}    	
+	    	return "";
+    	}
+    	return "ChatTags are Disabled";
     }
 
     /**
@@ -151,13 +170,35 @@ public class TitleManager {
      */
     public Title getPlayerSuffix(OfflinePlayer target)
     {
-        if(playerSuffixes.containsKey(target.getName())){
-            String title = playerSuffixes.get(target.getName());
-            return suffixes.get(title);
-        }
-        else{
-            return null;
-        }
+    	if(target!=null){
+    		if(playerSuffixes.containsKey(target.getName())){
+                String title = playerSuffixes.get(target.getName());
+                return suffixes.get(title);
+            }
+    	}
+        return null;
+    }
+    
+    /**
+     * Get the Suffix a player has set currently
+     * @param target the player
+     * @return Title or null if the player has no suffix
+     */
+
+    public String getSuffixChatTag(OfflinePlayer target){
+    	if(plugin.getConfig().getBoolean("general.use_chattag") || plugin.placeHolders){
+	    	String chatTag;
+	    	if(target!=null){
+	    		if(getPlayerSuffix(target).chatTag!=null){
+	    			chatTag = getPlayerSuffix(target).chatTag;
+			    	if(!chatTag.equals(null) && !chatTag.equals("")){
+			    		return chatTag;
+			    	}
+	    		}    		
+	    	}    	
+	    	return "";
+    	}
+    	return "ChatTags are Disabled";
     }
 
     /**
@@ -165,11 +206,12 @@ public class TitleManager {
      * @param title the title to set
      * @param target The Player
      */
-    public void setPlayerPrefix(Title title,OfflinePlayer target)
+    @SuppressWarnings("deprecation")
+	public void setPlayerPrefix(Title title,OfflinePlayer target)
     {
         if(plugin.getConfig().getBoolean("general.use_nametag"))
         {
-            plugin.getTeamManager().getTeam(title, getPlayerSuffix(target)).addPlayer(target);
+            plugin.getTeamManager().getTeam(title, getPlayerSuffix(target), target.getPlayer()).addPlayer(target);
         }
         if(title==null){
         	playerPrefixes.remove(target.getName());
@@ -195,11 +237,12 @@ public class TitleManager {
      * @param title the title to set
      * @param target The Player
      */
-    public void setPlayerSuffix(Title title, OfflinePlayer target)
+    @SuppressWarnings("deprecation")
+	public void setPlayerSuffix(Title title, OfflinePlayer target)
     {
     	if(plugin.getConfig().getBoolean("general.use_nametag"))
         {
-            plugin.getTeamManager().getTeam(getPlayerPrefix(target), title).addPlayer(target);
+            plugin.getTeamManager().getTeam(getPlayerPrefix(target), title, target.getPlayer()).addPlayer(target);
         }
         if(title==null){
         	playerSuffixes.remove(target.getName());

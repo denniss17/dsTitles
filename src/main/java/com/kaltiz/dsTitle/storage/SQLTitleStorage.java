@@ -24,28 +24,32 @@ public class SQLTitleStorage extends TitleStorage {
         super(plugin,manager);
 
         this.driver = DatabaseType.match(plugin.getConfig().getString("storage.database.driver"));
-        if(this.driver.equals(DatabaseType.SQLITE)){
-        	this.url = "jdbc:sqlite:" + plugin.getDataFolder().getAbsolutePath() + System.getProperty("file.separator") + plugin.getConfig().getString("storage.database.url");
-        }else{
-        	this.url = "jdbc:" + plugin.getConfig().getString("storage.database.url");
-        }
-        this.username = plugin.getConfig().getString("storage.database.username");
-        this.password = plugin.getConfig().getString("storage.database.password");
+        if(this.driver!=null) {
+        	if(this.driver.equals(DatabaseType.SQLITE)){
+            	this.url = "jdbc:sqlite:" + plugin.getDataFolder().getAbsolutePath() + System.getProperty("file.separator") + plugin.getConfig().getString("storage.database.url");
+            }else{
+            	this.url = "jdbc:" + plugin.getConfig().getString("storage.database.url") + "?useSSL=" + plugin.getConfig().getString("storage.database.useSSL");
+            }
+            this.username = plugin.getConfig().getString("storage.database.username");
+            this.password = plugin.getConfig().getString("storage.database.password");
 
-        if (!loadDriver()) {
-            throw new SQLException("Couldn't load driver");
-        }
+            if (!loadDriver()) {
+                throw new SQLException("Couldn't load driver");
+            }
 
-        this.conn = getConnection();
-        
-        if (conn==null) {
-            throw new SQLException("Couldn't connect to the database");
-        }
+            this.conn = getConnection();
+            
+            if (conn==null) {
+                throw new SQLException("Couldn't connect to the database");
+            }
 
-        // Create table
-        String qry = "CREATE TABLE IF NOT EXISTS `players` (`name` VARCHAR(16) NOT NULL PRIMARY KEY, `prefix` VARCHAR(32), `suffix` VARCHAR(32));";
-        Statement stmt = this.conn.createStatement();
-        stmt.execute(qry);
+            // Create table
+            String qry = "CREATE TABLE IF NOT EXISTS `players` (`name` VARCHAR(16) NOT NULL PRIMARY KEY, `prefix` VARCHAR(32), `suffix` VARCHAR(32));";
+            Statement stmt = this.conn.createStatement();
+            stmt.execute(qry);
+        }else {
+        	plugin.getLogger().info("Database needs a type set. Possible values: H2, MYSQL, POSTGRE, SQLITE");
+        }      
     }
 
     private boolean loadDriver()

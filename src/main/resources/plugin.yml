@@ -1,10 +1,10 @@
 name: dsTitle
 main: denniss17.dsTitle.DSTitle
-version: 1.4.0
+version: 1.5.3
 author: Denniss17
 website: 'http://dev.bukkit.org/server-mods/dstitle/'
 description: With this plugin you can create and set titles.
-softdepend: [Vault]
+softdepend: [Vault, PlaceholderAPI, DeluxeChat, MVdWPlaceholderAPI]
 commands:
    title:
       description: Manage your title

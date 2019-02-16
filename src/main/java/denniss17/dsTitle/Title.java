@@ -19,12 +19,12 @@ public class Title implements Comparable<Title>
 			return this.key;
 		}
 	};
-	public String name;
+	public String name = "";
 	public Type type;
-	public String chatTag;
-	public String headTag;
-	public String permission;
-	public String description;
+	public String chatTag = "";
+	public String headTag = "";
+	public String permission = "";
+	public String description = "";
 	
 	public Title(String name, Type type, String chatTag, String headTag, String permission, String description)
     {

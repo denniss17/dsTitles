@@ -30,6 +30,8 @@ general:
   # Should the plugin also change the tags above the heads of players?
   # These will be set to the values of headprefix and headsuffix in titleConfig.yml
   # Disable this if you have another plugin which handles this or uses teams of the Bukkit scoreboard api.
+  # Note : You can still use the placeholders in nametags if another plugin is handling nametags and that
+  # plugin supports PlaceHolderAPI or DeluxeChat
   use_nametag: true
   # Should the plugin check for updates and notify all players with ds_title.admin?
   check_for_updates: true
@@ -44,13 +46,15 @@ storage:
   # Database settings
   database:
     # Database driver. Possible values: H2, MYSQL, POSTGRE, SQLITE
-    driver: ''
+    driver: 'mysql'
     # Url of the database, or filename in case of SQLITE
-    url: ''
+    url: 'mysql://127.0.0.1:3306/dstitle'
+    # Boolean to use SSL in case of mysql database
+    useSSL: false
     # Username for database. Not needed when using SQLITE
-    username: ''
+    username: 'root'
     # Password for database. Not needed when using SQLITE
-    password: ''
+    password: 'password'
 messages:
   # I think this doesn't need explanation
   error_no_player: '&8[&eTitles&8] &cOnly players can use this command'
@@ -78,7 +82,9 @@ messages:
   # Header showed above available titles, when a player does /title list
   available_header: '&8~~=={  &aAvailable &etitles &8}==~~'
   # Make up of one title in the list showed when a player does /title list
-  title_listitem: '{name}&r: {preview} &r&8({description})'
+  title_available_hovertext: '&eClick to set your title as {title}'
+  title_listitem_available: '{preview} &r&8({description})'
+  title_listitem_unavailable: '{preview} &r&8({description})'
   # The help menu (if you just use /title)
   menu_header: '&8~~=={ &e&ldsTitles help &r&8}==~~'
   menu_prefix_list: ' &e/title prefix &fList available prefixes'

@@ -3,6 +3,7 @@ package denniss17.dsTitle;
 import java.sql.SQLException;
 import java.util.logging.Level;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -12,7 +13,6 @@ import com.kaltiz.dsTitle.storage.SQLTitleStorage;
 import com.kaltiz.dsTitle.storage.TitleStorage;
 import com.kaltiz.dsTitle.storage.YMLTitleStorage;
 
-
 public class DSTitle extends JavaPlugin{	
 	private PermissionManager permissionManager;
 	private TeamManager teamManager;
@@ -21,11 +21,41 @@ public class DSTitle extends JavaPlugin{
 	
 	private static final int projectID = 51865;
 	public static VersionChecker versionChecker;
+	public static DSTitle title;
+	public boolean placeHolders = false;
 
 	/**
 	 * Enable this plugin
 	 */
 	public void onEnable(){
+		title = this;
+		super.onEnable();
+		if(Bukkit.getPluginManager().isPluginEnabled("MVdWPlaceholderAPI"))
+		{
+			if(denniss17.dsTitle.Placeholders.mvdwPlaceholderAPIHook.dsTitlePrefixHook()&&
+			denniss17.dsTitle.Placeholders.mvdwPlaceholderAPIHook.dsTitleSuffixHook()){
+				getLogger().info("dsTitle was successfully registered with mvdwPlaceholderAPI!");
+				placeHolders = true;
+			}
+		}
+		if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI"))
+		{
+			if (denniss17.dsTitle.Placeholders.PlaceholderAPIHook.RegisterPlaceHolderHooks(title)) {
+		        getLogger().info("dsTitle was successfully registered with PlaceHolderAPI!");
+		        placeHolders = true;
+		    }
+		}
+		if(Bukkit.getPluginManager().isPluginEnabled("DeluxeChat"))
+		{
+			try {
+				if (denniss17.dsTitle.Placeholders.DeluxeChatHook.RegisterDeluxeChatHooks(title)) {
+				    getLogger().info("dsTitle was successfully registered with DeluxeChat!");
+				    placeHolders = true;
+				}
+			} catch (ClassNotFoundException e) {
+				getLogger().info("dsTitle found DeluxeChat, but it does not seem to be the correct version.");
+			}
+		}
 		// Register listeners
 		Listener playerListener = new PlayerListener(this, !this.getConfig().getBoolean("general.use_deprecated_listener"));
 		this.getServer().getPluginManager().registerEvents(playerListener, this);
@@ -50,13 +80,26 @@ public class DSTitle extends JavaPlugin{
 		if(this.getConfig().getBoolean("general.check_for_updates")){
 			activateVersionChecker();
         }
-
         this.getLogger().info("Loaded!");
 	}
 	
 	@Override
 	public void onDisable() {
 		super.onDisable();
+		if(placeHolders){
+			if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI"))
+			{
+				if (denniss17.dsTitle.Placeholders.PlaceholderAPIHook.unRegisterPlaceHolderHooks(title)) {
+					getLogger().info("dsTitle was successfully unregistered with PlaceHolderAPI!");
+				}
+			}
+			if(Bukkit.getPluginManager().isPluginEnabled("DeluxeChat"))
+			{
+				if (denniss17.dsTitle.Placeholders.DeluxeChatHook.unRegisterDeluxeChatHooks(title)) {
+			        getLogger().info("dsTitle was successfully unregistered with DeluxeChat!");
+			    }
+			}
+		}
 		if(this.storage instanceof SQLTitleStorage){
 			try {
 				((SQLTitleStorage)this.storage).closeConnection();
@@ -71,7 +114,8 @@ public class DSTitle extends JavaPlugin{
 	 */
 	private void activateVersionChecker(){
 		versionChecker = new VersionChecker(this, projectID);
-		versionChecker.activate(this.getConfig().getInt("general.update_check_interval") * 60 * 20);
+        if(versionChecker!=null)
+        	versionChecker.activate(this.getConfig().getInt("general.update_check_interval") * 60 * 20);
 	}
 	
 	/**
@@ -144,4 +188,6 @@ public class DSTitle extends JavaPlugin{
 	public void sendMessage(CommandSender receiver, String message){
 		receiver.sendMessage(ChatStyler.setTotalStyle(message));
 	}
+	
+	
 }
